@@ -830,7 +830,10 @@ set(pcsx2AnalysisFrameworkSources
 	AnalysisFramework/MCPServer/MCPServer.cpp
 	AnalysisFramework/IDAInterface/IDAInterface.cpp
 	AnalysisFramework/GhidraAnalyzer/GhidraAnalyzer.cpp
+	AnalysisFramework/CheatEngine/CheatEngine.cpp
+	AnalysisFramework/SourceReconstruction/SourceReconstruction.cpp
 	AnalysisFramework/Common/Utilities.cpp
+)
 )
 
 # AnalysisFramework headers
@@ -842,6 +845,7 @@ set(pcsx2AnalysisFrameworkHeaders
 	AnalysisFramework/IDAInterface/IDAInterface.h
 	AnalysisFramework/GhidraAnalyzer/GhidraAnalyzer.h
 	AnalysisFramework/CheatEngine/CheatEngine.h
+	AnalysisFramework/SourceReconstruction/SourceReconstruction.h
 	AnalysisFramework/Common/Utilities.h
 )
 

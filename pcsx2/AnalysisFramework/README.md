@@ -13,19 +13,35 @@ The PCSX2 Analysis Framework is a comprehensive system that integrates advanced 
 - **Thread-Safe Operations**: Safe concurrent access to emulator state
 - **Minimal Performance Impact**: Designed to not interfere with emulation performance
 
+### Enhanced Source Reconstruction (NEW)
+- **Real-Time Function Discovery**: Automatically identify and analyze functions during gameplay
+- **Microprogram Pattern Detection**: Detect asset decompression, ELF loading, and other microprogram activities
+- **Gameplay Correlation**: Correlate memory operations with visual gameplay context
+- **AI-Assisted Analysis**: Generate intelligent function names and purposes using AI integration
+- **Behavioral Pattern Recognition**: Identify function types based on execution patterns and memory access
+
 ### MCP Server Integration
 - **JSON-RPC 2.0 Protocol**: Standard Model Context Protocol implementation
 - **Real-Time State Access**: Live monitoring of emulator state
 - **AI-Assisted Analysis**: Compatible with AI tools and language models
 - **Tool Discovery**: Automatic discovery and documentation of available analysis tools
 - **WebSocket Support**: Real-time bidirectional communication
+- **Enhanced Tool Set**: 25+ specialized tools for comprehensive analysis
 
-### Memory Analysis
+### Multimodal AI Integration (NEW)
+- **Video Frame Analysis**: Submit gameplay video frames for AI analysis
+- **Cross-Modal Correlation**: Correlate visual gameplay with memory operations
+- **Real-Time Context Detection**: Automatically detect gameplay context (menu, combat, etc.)
+- **AI Prompt Generation**: Automatically generate prompts for function analysis
+- **Claude & Gemini Support**: Native integration with leading AI models
+
+### Enhanced Memory Analysis
 - **Safe Memory Access**: Protected read/write operations through PCSX2's memory system
 - **Pattern Scanning**: Advanced memory scanning with mask support
 - **Value Monitoring**: Real-time tracking of memory value changes
 - **CheatEngine Compatibility**: Native support for CheatEngine-style memory manipulation
 - **Memory Region Validation**: Automatic validation of PS2 memory regions
+- **Function Pattern Detection**: Identify common game patterns (health, position, score, etc.)
 
 ### External Tool Integration
 
@@ -35,6 +51,7 @@ The PCSX2 Analysis Framework is a comprehensive system that integrates advanced 
 - **Cross-Reference Generation**: Build comprehensive code cross-references
 - **Python Script Generation**: Automated IDA Pro script creation
 - **PS2 ELF Support**: Native PlayStation 2 ELF file handling
+- **Enhanced Export**: Export discovered functions with AI-generated names
 
 #### Ghidra Analyzer
 - **Memory Dump Export**: Export PS2 memory for Ghidra analysis
@@ -42,27 +59,93 @@ The PCSX2 Analysis Framework is a comprehensive system that integrates advanced 
 - **Project Management**: Automated Ghidra project creation and configuration
 - **Decompilation Support**: Integration with Ghidra's decompiler
 - **Python Script Generation**: Automated analysis script creation
+- **Source Reconstruction Export**: Export function analysis results
 
 ### Debug Integration
 - **Breakpoint Management**: Advanced breakpoint system integration
 - **Register Access**: Complete access to PS2 CPU registers
 - **Execution Control**: Pause, resume, and step-through functionality
 - **Disassembly Integration**: Native PS2 MIPS disassembly support
+- **Real-Time Monitoring**: Continuous analysis during game execution
+
+## Enhanced Analysis Workflow
+
+### Real-Time Source Reconstruction During Gameplay
+
+The enhanced Analysis Framework now supports autonomous source code reconstruction by analyzing gameplay patterns in real-time:
+
+```mermaid
+graph LR
+    A[Game Execution] --> B[Memory Monitoring]
+    A --> C[Video Capture]
+    B --> D[Function Discovery]
+    C --> E[AI Analysis]
+    D --> F[Pattern Recognition]
+    E --> F
+    F --> G[Source Reconstruction]
+    G --> H[Export to Tools]
+```
+
+### Multimodal AI Integration Workflow
+
+1. **Gameplay Monitoring**: Continuous monitoring of PS2 game execution
+2. **Function Discovery**: Real-time identification of active functions
+3. **Video Analysis**: AI-powered analysis of gameplay video frames
+4. **Cross-Modal Correlation**: Correlation between visual gameplay and memory operations
+5. **Pattern Recognition**: Identification of function purposes based on behavioral patterns
+6. **AI-Assisted Naming**: Automatic generation of descriptive function names
+7. **Export Integration**: Seamless export to IDA Pro, Ghidra, and other tools
+
+### Example: Automatic Function Discovery
+
+```python
+# Connect to enhanced PCSX2
+client = EnhancedPCSX2Client()
+client.connect()
+
+# Start real-time analysis
+client.start_realtime_analysis()
+
+# Set gameplay context for AI correlation
+client.set_gameplay_context("combat")
+
+# AI analyzes video and correlates with memory
+client.start_video_monitoring()
+
+# After gameplay session, get discovered functions
+functions = client.get_discovered_functions()
+
+# Export to reverse engineering tools
+client.export_analysis_results("ida", "auto_discovered_functions.py")
+client.export_analysis_results("ghidra", "auto_discovered_functions_ghidra.py")
+```
 
 ## Architecture
 
 ### Directory Structure
 ```
 pcsx2/AnalysisFramework/
-├── Core/                    # Core framework components
-│   ├── AnalysisFramework.*  # Main framework manager
-│   ├── MemoryInterface.*    # Memory access abstraction
-│   └── DebugInterface.*     # Debug system integration
-├── MCPServer/              # Model Context Protocol implementation
-├── CheatEngine/            # Memory scanning and modification
-├── IDAInterface/           # IDA Pro integration
-├── GhidraAnalyzer/         # Ghidra integration
-└── Common/                 # Shared utilities and helpers
+├── Core/                           # Core framework components
+│   ├── AnalysisFramework.*         # Main framework manager
+│   ├── MemoryInterface.*           # Memory access abstraction
+│   └── DebugInterface.*            # Debug system integration
+├── MCPServer/                      # Enhanced Model Context Protocol implementation
+│   └── MCPServer.*                 # MCP server with 25+ analysis tools
+├── SourceReconstruction/           # NEW: Real-time source code reconstruction
+│   └── SourceReconstruction.*      # Function discovery and AI analysis
+├── CheatEngine/                    # Enhanced memory scanning and modification
+│   ├── CheatEngine.h               # Header with pattern detection structures
+│   └── CheatEngine.cpp             # NEW: Full implementation with game patterns
+├── IDAInterface/                   # Enhanced IDA Pro integration
+│   └── IDAInterface.*              # Symbol export with AI-generated names
+├── GhidraAnalyzer/                 # Enhanced Ghidra integration
+│   └── GhidraAnalyzer.*            # Memory export with source reconstruction
+├── Common/                         # Shared utilities and helpers
+│   └── Utilities.*                 # Analysis utilities and patterns
+└── examples/                       # Usage examples and AI integration
+    ├── mcp_client_example.py       # Basic MCP client
+    ├── enhanced_mcp_client.py      # NEW: Enhanced client with AI features
+    └── AI_INTEGRATION_GUIDE.md     # NEW: Comprehensive AI integration guide
 ```
 
 ### Core Components

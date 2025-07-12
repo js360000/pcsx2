@@ -1,0 +1,37 @@
+# PCSX2 Enhanced Analysis Framework - Python Requirements
+#
+# Basic requirements for enhanced MCP client
+# No external dependencies required for basic functionality
+
+# Optional dependencies for enhanced features:
+
+# For video processing and multimodal AI integration:
+# opencv-python>=4.5.0        # Video capture and frame processing
+# pillow>=8.0.0               # Image processing
+
+# For AI service integration:
+# anthropic>=0.3.0            # Claude API client
+# google-generativeai>=0.3.0  # Gemini API client
+# openai>=1.0.0               # OpenAI API client (GPT-4/GPT-4V)
+
+# For advanced analysis:
+# numpy>=1.20.0               # Numerical operations
+# requests>=2.25.0            # HTTP requests for AI services
+# asyncio                     # Already part of Python 3.7+
+
+# Installation instructions:
+#
+# Basic usage (no external dependencies):
+#   No installation required - uses only Python standard library
+#
+# Enhanced features with video processing:
+#   pip install opencv-python pillow
+#
+# AI integration:
+#   pip install anthropic google-generativeai openai
+#
+# Full feature set:
+#   pip install opencv-python pillow anthropic google-generativeai openai numpy requests
+#
+# Note: The framework is designed to work without any external dependencies
+# for basic functionality. Enhanced features require optional packages.

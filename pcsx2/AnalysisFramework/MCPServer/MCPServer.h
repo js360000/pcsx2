@@ -75,6 +75,25 @@ namespace AnalysisFramework
 		rapidjson::Value ToolGetGameState(const rapidjson::Value& params);
 		rapidjson::Value ToolGetPerformanceMetrics(const rapidjson::Value& params);
 
+		/// Enhanced source reconstruction tools
+		rapidjson::Value ToolGetDiscoveredFunctions(const rapidjson::Value& params);
+		rapidjson::Value ToolAnalyzeFunctionBehavior(const rapidjson::Value& params);
+		rapidjson::Value ToolGetMicroprogramPatterns(const rapidjson::Value& params);
+		rapidjson::Value ToolSetGameplayContext(const rapidjson::Value& params);
+		rapidjson::Value ToolAddVideoFrameAnalysis(const rapidjson::Value& params);
+		rapidjson::Value ToolGetGameplayCorrelations(const rapidjson::Value& params);
+		rapidjson::Value ToolGenerateSourceReport(const rapidjson::Value& params);
+		rapidjson::Value ToolExportAnalysisResults(const rapidjson::Value& params);
+		rapidjson::Value ToolStartRealtimeAnalysis(const rapidjson::Value& params);
+		rapidjson::Value ToolStopRealtimeAnalysis(const rapidjson::Value& params);
+
+		/// Multimodal AI integration tools
+		rapidjson::Value ToolSubmitVideoFrame(const rapidjson::Value& params);
+		rapidjson::Value ToolAnalyzeVideoGameplay(const rapidjson::Value& params);
+		rapidjson::Value ToolCorrelateVideoWithMemory(const rapidjson::Value& params);
+		rapidjson::Value ToolGenerateAIPrompt(const rapidjson::Value& params);
+		rapidjson::Value ToolProcessAIResponse(const rapidjson::Value& params);
+
 		/// Server thread function
 		void ServerThreadFunc();
 
