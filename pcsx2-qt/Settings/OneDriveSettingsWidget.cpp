@@ -86,8 +86,7 @@ void OneDriveSettingsWidget::onAuthenticateClicked()
 	setupAuthenticationInfo();
 
 	QMessageBox::information(this, tr("OneDrive Authentication"),
-		tr("Credentials saved. You'll need to authenticate when opening a OneDrive URL for the first time.\n\n"
-		   "Note: OneDrive streaming is only supported on Linux and macOS."));
+		tr("Credentials saved. You'll need to authenticate when opening a OneDrive URL for the first time."));
 }
 
 void OneDriveSettingsWidget::onTestConnectionClicked()
@@ -101,12 +100,6 @@ void OneDriveSettingsWidget::onTestConnectionClicked()
 			tr("Please configure authentication first."));
 		return;
 	}
-
-#ifdef _WIN32
-	QMessageBox::warning(this, tr("Test Connection"),
-		tr("OneDrive streaming is not supported on Windows."));
-	return;
-#endif
 
 	if (accessToken.empty())
 	{

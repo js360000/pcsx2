@@ -8,7 +8,13 @@
 #include "common/StringUtil.h"
 #include "common/Console.h"
 
-#ifndef _WIN32
+#ifdef _WIN32
+#include <windows.h>
+#include <winhttp.h>
+#include <wininet.h>
+#pragma comment(lib, "winhttp.lib")
+#pragma comment(lib, "wininet.lib")
+#else
 #include <curl/curl.h>
 #endif
 
@@ -18,12 +24,18 @@
 /// Implementation details for OneDriveAPI
 struct OneDriveAPI::Impl
 {
-#ifndef _WIN32
+#ifdef _WIN32
+	HINTERNET session = nullptr;
+#else
 	CURL* curl = nullptr;
 #endif
 	std::string response_buffer;
 
 	static size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp);
+#ifdef _WIN32
+	bool MakeHttpRequest(const std::string& url, const std::string& auth_header, std::string& response);
+	bool DownloadHttpRange(const std::string& url, u64 offset, u64 size, void* buffer, size_t* bytes_read);
+#endif
 };
 
 #ifndef _WIN32
@@ -34,11 +46,184 @@ size_t OneDriveAPI::Impl::WriteCallback(void* contents, size_t size, size_t nmem
 	buffer->append(static_cast<char*>(contents), total_size);
 	return total_size;
 }
+#else
+size_t OneDriveAPI::Impl::WriteCallback(void* contents, size_t size, size_t nmemb, void* userp)
+{
+	const size_t total_size = size * nmemb;
+	std::string* buffer = static_cast<std::string*>(userp);
+	buffer->append(static_cast<char*>(contents), total_size);
+	return total_size;
+}
+
+bool OneDriveAPI::Impl::MakeHttpRequest(const std::string& url, const std::string& auth_header, std::string& response)
+{
+	// Parse URL
+	URL_COMPONENTSA url_comp = {};
+	url_comp.dwStructSize = sizeof(url_comp);
+	url_comp.dwHostNameLength = 1;
+	url_comp.dwUrlPathLength = 1;
+	url_comp.dwSchemeLength = 1;
+	
+	std::string url_copy = url;
+	if (!InternetCrackUrlA(url_copy.c_str(), static_cast<DWORD>(url_copy.length()), 0, &url_comp))
+		return false;
+
+	std::string hostname(url_comp.lpszHostName, url_comp.dwHostNameLength);
+	std::string path(url_comp.lpszUrlPath, url_comp.dwUrlPathLength);
+	
+	// Create connection to the specific host
+	HINTERNET temp_connection = WinHttpConnect(session, StringUtil::UTF8StringToWideString(hostname).c_str(), 
+		url_comp.nPort, 0);
+	if (!temp_connection)
+		return false;
+
+	HINTERNET request = WinHttpOpenRequest(temp_connection, L"GET", 
+		StringUtil::UTF8StringToWideString(path).c_str(), nullptr,
+		WINHTTP_NO_REFERER, WINHTTP_DEFAULT_ACCEPT_TYPES, 
+		(url_comp.nScheme == INTERNET_SCHEME_HTTPS) ? WINHTTP_FLAG_SECURE : 0);
+	
+	if (!request)
+	{
+		WinHttpCloseHandle(temp_connection);
+		return false;
+	}
+
+	// Add authorization header
+	std::wstring auth_header_wide = StringUtil::UTF8StringToWideString(auth_header);
+	WinHttpAddRequestHeaders(request, auth_header_wide.c_str(), static_cast<DWORD>(-1), WINHTTP_ADDREQ_FLAG_ADD);
+
+	// Send request
+	if (!WinHttpSendRequest(request, WINHTTP_NO_ADDITIONAL_HEADERS, 0, WINHTTP_NO_REQUEST_DATA, 0, 0, 0))
+	{
+		WinHttpCloseHandle(request);
+		WinHttpCloseHandle(temp_connection);
+		return false;
+	}
+
+	// Receive response
+	if (!WinHttpReceiveResponse(request, nullptr))
+	{
+		WinHttpCloseHandle(request);
+		WinHttpCloseHandle(temp_connection);
+		return false;
+	}
+
+	// Check status code
+	DWORD status_code = 0;
+	DWORD size = sizeof(status_code);
+	WinHttpQueryHeaders(request, WINHTTP_QUERY_STATUS_CODE | WINHTTP_QUERY_FLAG_NUMBER,
+		WINHTTP_HEADER_NAME_BY_INDEX, &status_code, &size, WINHTTP_NO_HEADER_INDEX);
+
+	if (status_code != 200)
+	{
+		WinHttpCloseHandle(request);
+		WinHttpCloseHandle(temp_connection);
+		return false;
+	}
+
+	// Read response data
+	response.clear();
+	DWORD bytes_available = 0;
+	while (WinHttpQueryDataAvailable(request, &bytes_available) && bytes_available > 0)
+	{
+		std::vector<char> buffer(bytes_available);
+		DWORD bytes_read = 0;
+		if (WinHttpReadData(request, buffer.data(), bytes_available, &bytes_read))
+		{
+			response.append(buffer.data(), bytes_read);
+		}
+	}
+
+	WinHttpCloseHandle(request);
+	WinHttpCloseHandle(temp_connection);
+	return true;
+}
+
+bool OneDriveAPI::Impl::DownloadHttpRange(const std::string& url, u64 offset, u64 size, void* buffer, size_t* bytes_read)
+{
+	// Parse URL
+	URL_COMPONENTSA url_comp = {};
+	url_comp.dwStructSize = sizeof(url_comp);
+	url_comp.dwHostNameLength = 1;
+	url_comp.dwUrlPathLength = 1;
+	url_comp.dwSchemeLength = 1;
+	
+	std::string url_copy = url;
+	if (!InternetCrackUrlA(url_copy.c_str(), static_cast<DWORD>(url_copy.length()), 0, &url_comp))
+		return false;
+
+	std::string hostname(url_comp.lpszHostName, url_comp.dwHostNameLength);
+	std::string path(url_comp.lpszUrlPath, url_comp.dwUrlPathLength);
+
+	// Create connection to the specific host  
+	HINTERNET temp_connection = WinHttpConnect(session, StringUtil::UTF8StringToWideString(hostname).c_str(), 
+		url_comp.nPort, 0);
+	if (!temp_connection)
+		return false;
+
+	HINTERNET request = WinHttpOpenRequest(temp_connection, L"GET", 
+		StringUtil::UTF8StringToWideString(path).c_str(), nullptr,
+		WINHTTP_NO_REFERER, WINHTTP_DEFAULT_ACCEPT_TYPES, 
+		(url_comp.nScheme == INTERNET_SCHEME_HTTPS) ? WINHTTP_FLAG_SECURE : 0);
+	
+	if (!request)
+	{
+		WinHttpCloseHandle(temp_connection);
+		return false;
+	}
+
+	// Add range header
+	std::string range_header = fmt::format("Range: bytes={}-{}", offset, offset + size - 1);
+	std::wstring range_header_wide = StringUtil::UTF8StringToWideString(range_header);
+	WinHttpAddRequestHeaders(request, range_header_wide.c_str(), static_cast<DWORD>(-1), WINHTTP_ADDREQ_FLAG_ADD);
+
+	// Send request
+	if (!WinHttpSendRequest(request, WINHTTP_NO_ADDITIONAL_HEADERS, 0, WINHTTP_NO_REQUEST_DATA, 0, 0, 0))
+	{
+		WinHttpCloseHandle(request);
+		WinHttpCloseHandle(temp_connection);
+		return false;
+	}
+
+	// Receive response
+	if (!WinHttpReceiveResponse(request, nullptr))
+	{
+		WinHttpCloseHandle(request);
+		WinHttpCloseHandle(temp_connection);
+		return false;
+	}
+
+	// Read response data directly to buffer
+	*bytes_read = 0;
+	DWORD bytes_available = 0;
+	char* dest = static_cast<char*>(buffer);
+	
+	while (WinHttpQueryDataAvailable(request, &bytes_available) && bytes_available > 0 && *bytes_read < size)
+	{
+		DWORD to_read = std::min(bytes_available, static_cast<DWORD>(size - *bytes_read));
+		DWORD read_this_time = 0;
+		if (WinHttpReadData(request, dest + *bytes_read, to_read, &read_this_time))
+		{
+			*bytes_read += read_this_time;
+		}
+		else
+		{
+			break;
+		}
+	}
+
+	WinHttpCloseHandle(request);
+	WinHttpCloseHandle(temp_connection);
+	return *bytes_read > 0;
+}
 #endif
 
 OneDriveAPI::OneDriveAPI() : m_impl(std::make_unique<Impl>())
 {
-#ifndef _WIN32
+#ifdef _WIN32
+	m_impl->session = WinHttpOpen(L"PCSX2 OneDrive Client/1.0", WINHTTP_ACCESS_TYPE_DEFAULT_PROXY,
+		WINHTTP_NO_PROXY_NAME, WINHTTP_NO_PROXY_BYPASS, 0);
+#else
 	curl_global_init(CURL_GLOBAL_DEFAULT);
 	m_impl->curl = curl_easy_init();
 #endif
@@ -46,7 +231,12 @@ OneDriveAPI::OneDriveAPI() : m_impl(std::make_unique<Impl>())
 
 OneDriveAPI::~OneDriveAPI()
 {
-#ifndef _WIN32
+#ifdef _WIN32
+	if (m_impl->session)
+	{
+		WinHttpCloseHandle(m_impl->session);
+	}
+#else
 	if (m_impl->curl)
 	{
 		curl_easy_cleanup(m_impl->curl);
@@ -60,14 +250,18 @@ bool OneDriveAPI::Initialize(const AuthInfo& auth_info, Error* error)
 	m_auth_info = auth_info;
 
 #ifdef _WIN32
-	Error::SetStringView(error, "OneDrive streaming is not supported on Windows. Please use the Linux or macOS version.");
-	return false;
+	if (!m_impl->session)
+	{
+		Error::SetStringView(error, "Failed to initialize WinHTTP for OneDrive API");
+		return false;
+	}
 #else
 	if (!m_impl->curl)
 	{
 		Error::SetStringView(error, "Failed to initialize CURL for OneDrive API");
 		return false;
 	}
+#endif
 
 	if (auth_info.access_token.empty())
 	{
@@ -77,15 +271,10 @@ bool OneDriveAPI::Initialize(const AuthInfo& auth_info, Error* error)
 
 	m_auth_info.is_authenticated = true;
 	return true;
-#endif
 }
 
 bool OneDriveAPI::GetFileInfo(const std::string& url_or_id, FileInfo& file_info, Error* error)
 {
-#ifdef _WIN32
-	Error::SetStringView(error, "OneDrive streaming is not supported on Windows");
-	return false;
-#else
 	if (!IsAuthenticated())
 	{
 		Error::SetStringView(error, "OneDrive API not authenticated");
@@ -104,16 +293,23 @@ bool OneDriveAPI::GetFileInfo(const std::string& url_or_id, FileInfo& file_info,
 	}
 
 	const std::string api_url = BuildGraphAPIURL(fmt::format("items/{}", file_id));
+	const std::string auth_header = fmt::format("Authorization: Bearer {}", m_auth_info.access_token);
 	
 	m_impl->response_buffer.clear();
-	
+
+#ifdef _WIN32
+	if (!m_impl->MakeHttpRequest(api_url, auth_header, m_impl->response_buffer))
+	{
+		Error::SetStringView(error, "Failed to make HTTP request to OneDrive API");
+		return false;
+	}
+#else
 	curl_easy_setopt(m_impl->curl, CURLOPT_URL, api_url.c_str());
 	curl_easy_setopt(m_impl->curl, CURLOPT_WRITEFUNCTION, Impl::WriteCallback);
 	curl_easy_setopt(m_impl->curl, CURLOPT_WRITEDATA, &m_impl->response_buffer);
 	curl_easy_setopt(m_impl->curl, CURLOPT_FOLLOWLOCATION, 1L);
 	
 	struct curl_slist* headers = nullptr;
-	const std::string auth_header = fmt::format("Authorization: Bearer {}", m_auth_info.access_token);
 	headers = curl_slist_append(headers, auth_header.c_str());
 	curl_easy_setopt(m_impl->curl, CURLOPT_HTTPHEADER, headers);
 
@@ -134,8 +330,9 @@ bool OneDriveAPI::GetFileInfo(const std::string& url_or_id, FileInfo& file_info,
 		Error::SetStringFmt(error, "OneDrive API error: HTTP {}", response_code);
 		return false;
 	}
+#endif
 
-	// Parse JSON response
+	// Parse JSON response (same for both platforms)
 	rapidjson::Document doc;
 	if (doc.Parse(m_impl->response_buffer.c_str()).HasParseError())
 	{
@@ -167,15 +364,10 @@ bool OneDriveAPI::GetFileInfo(const std::string& url_or_id, FileInfo& file_info,
 		file_info.download_url = doc["@microsoft.graph.downloadUrl"].GetString();
 
 	return true;
-#endif
 }
 
 size_t OneDriveAPI::DownloadRange(const std::string& file_id, u64 offset, u64 size, void* buffer, Error* error)
 {
-#ifdef _WIN32
-	Error::SetStringView(error, "OneDrive streaming is not supported on Windows");
-	return 0;
-#else
 	if (!IsAuthenticated())
 	{
 		Error::SetStringView(error, "OneDrive API not authenticated");
@@ -193,6 +385,15 @@ size_t OneDriveAPI::DownloadRange(const std::string& file_id, u64 offset, u64 si
 		return 0;
 	}
 
+#ifdef _WIN32
+	size_t bytes_read = 0;
+	if (!m_impl->DownloadHttpRange(file_info.download_url, offset, size, buffer, &bytes_read))
+	{
+		Error::SetStringView(error, "Failed to download range from OneDrive");
+		return 0;
+	}
+	return bytes_read;
+#else
 	// Create a separate CURL handle for downloads to avoid conflicts
 	CURL* download_curl = curl_easy_init();
 	if (!download_curl)
