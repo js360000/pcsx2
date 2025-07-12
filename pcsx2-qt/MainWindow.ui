@@ -69,6 +69,7 @@
      </property>
     </widget>
     <addaction name="actionStartFile"/>
+    <addaction name="actionStartOneDrive"/>
     <addaction name="actionStartDisc"/>
     <addaction name="actionStartBios"/>
     <addaction name="actionStartFullscreenUI"/>
@@ -282,6 +283,17 @@
    </property>
    <property name="text">
     <string comment="In Toolbar">Start File</string>
+   </property>
+  </action>
+  <action name="actionStartOneDrive">
+   <property name="icon">
+    <iconset theme="cloud-line"/>
+   </property>
+   <property name="text">
+    <string>Start &amp;OneDrive ISO...</string>
+   </property>
+   <property name="toolTip">
+    <string>Stream an ISO file directly from OneDrive</string>
    </property>
   </action>
   <action name="actionStartDisc">
