@@ -60,9 +60,9 @@ bool OneDriveAPI::Impl::MakeHttpRequest(const std::string& url, const std::strin
 	// Parse URL
 	URL_COMPONENTSA url_comp = {};
 	url_comp.dwStructSize = sizeof(url_comp);
-	url_comp.dwHostNameLength = 1;
-	url_comp.dwUrlPathLength = 1;
-	url_comp.dwSchemeLength = 1;
+	url_comp.dwHostNameLength = 1;  // This tells InternetCrackUrl to calculate length
+	url_comp.dwUrlPathLength = 1;   // This tells InternetCrackUrl to calculate length  
+	url_comp.dwSchemeLength = 1;    // This tells InternetCrackUrl to calculate length
 	
 	std::string url_copy = url;
 	if (!InternetCrackUrlA(url_copy.c_str(), static_cast<DWORD>(url_copy.length()), 0, &url_comp))
@@ -144,9 +144,9 @@ bool OneDriveAPI::Impl::DownloadHttpRange(const std::string& url, u64 offset, u6
 	// Parse URL
 	URL_COMPONENTSA url_comp = {};
 	url_comp.dwStructSize = sizeof(url_comp);
-	url_comp.dwHostNameLength = 1;
-	url_comp.dwUrlPathLength = 1;
-	url_comp.dwSchemeLength = 1;
+	url_comp.dwHostNameLength = 1;  // This tells InternetCrackUrl to calculate length
+	url_comp.dwUrlPathLength = 1;   // This tells InternetCrackUrl to calculate length
+	url_comp.dwSchemeLength = 1;    // This tells InternetCrackUrl to calculate length
 	
 	std::string url_copy = url;
 	if (!InternetCrackUrlA(url_copy.c_str(), static_cast<DWORD>(url_copy.length()), 0, &url_comp))
