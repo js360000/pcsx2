@@ -17,7 +17,7 @@
    <item>
     <widget class="QCheckBox" name="oneDriveEnable">
      <property name="text">
-      <string>Enable OneDrive streaming (Linux/macOS only)</string>
+      <string>Enable OneDrive streaming</string>
      </property>
     </widget>
    </item>
