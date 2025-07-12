@@ -144,6 +144,9 @@ target_sources(pcsx2-qt PRIVATE
 	Settings/DEV9SettingsWidget.cpp
 	Settings/DEV9SettingsWidget.h
 	Settings/DEV9SettingsWidget.ui
+	Settings/OneDriveSettingsWidget.cpp
+	Settings/OneDriveSettingsWidget.h
+	Settings/OneDriveSettingsWidget.ui
 	Settings/DEV9UiCommon.cpp
 	Settings/DEV9UiCommon.h
 	Settings/HddCreateQt.cpp

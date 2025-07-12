@@ -7,6 +7,7 @@
 #include "CDVD/FlatFileReader.h"
 #include "CDVD/GzippedFileReader.h"
 #include "CDVD/IsoFileFormats.h"
+#include "CDVD/OneDriveFileReader.h"
 #include "Config.h"
 #include "Host.h"
 
@@ -39,6 +40,10 @@ static const char* nameFromType(int type)
 
 static std::unique_ptr<ThreadedFileReader> GetFileReader(const std::string& path)
 {
+	// Check for OneDrive URLs first
+	if (OneDriveAPI::IsOneDriveURL(path))
+		return std::make_unique<OneDriveFileReader>();
+
 	const std::string_view extension = Path::GetExtension(path);
 
 	if (StringUtil::compareNoCase(extension, "chd"))

@@ -9,6 +9,7 @@
 #include "Settings/AudioSettingsWidget.h"
 #include "Settings/BIOSSettingsWidget.h"
 #include "Settings/DEV9SettingsWidget.h"
+#include "Settings/OneDriveSettingsWidget.h"
 #include "Settings/DebugSettingsWidget.h"
 #include "Settings/EmulationSettingsWidget.h"
 #include "Settings/FolderSettingsWidget.h"
@@ -169,6 +170,9 @@ void SettingsWindow::setupUi(const GameList::Entry* game)
 	addWidget(m_dev9_settings = new DEV9SettingsWidget(this, m_ui.settingsContainer), tr("Network & HDD"), QStringLiteral("global-line"),
 		tr("<strong>Network & HDD Settings</strong><hr>These options control the network connectivity and internal HDD storage of the "
 		   "console.<br><br>Mouse over an option for additional information, and Shift+Wheel to scroll this panel."));
+
+	addWidget(m_onedrive_settings = new OneDriveSettingsWidget(this, m_ui.settingsContainer), tr("OneDrive"), QStringLiteral("cloud-line"),
+		tr("<strong>OneDrive Streaming</strong><hr>Configure OneDrive authentication and streaming settings for playing ISOs directly from cloud storage.<br><br>Mouse over an option for additional information, and Shift+Wheel to scroll this panel."));
 
 	if (!isPerGameSettings())
 	{
