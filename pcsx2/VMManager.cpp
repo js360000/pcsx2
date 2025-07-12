@@ -25,6 +25,10 @@
 #include "MTGS.h"
 #include "MTVU.h"
 #include "PINE.h"
+#include "AnalysisFramework/Core/AnalysisFramework.h"
+#include "AnalysisFramework/MCPServer/MCPServer.h"
+#include "AnalysisFramework/IDAInterface/IDAInterface.h"
+#include "AnalysisFramework/GhidraAnalyzer/GhidraAnalyzer.h"
 #include "Patch.h"
 #include "PerformanceMetrics.h"
 #include "R3000A.h"
@@ -412,6 +416,32 @@ bool VMManager::Internal::CPUThreadInitialize()
 
 	ReloadPINE();
 
+	// Initialize Analysis Framework
+	if (auto& analysisCore = AnalysisFramework::AnalysisFrameworkCore::GetInstance(); !analysisCore.Initialize())
+	{
+		Console.Warning("(VMManager) Failed to initialize Analysis Framework");
+	}
+	else
+	{
+		// Register MCP Server module
+		auto mcpServer = std::make_shared<AnalysisFramework::MCPServer>();
+		if (analysisCore.RegisterModule(mcpServer))
+		{
+			// Start MCP server integration with PINE
+			mcpServer->StartServer();
+		}
+
+		// Register IDA Pro interface module
+		auto idaInterface = std::make_shared<AnalysisFramework::IDAInterface>();
+		analysisCore.RegisterModule(idaInterface);
+
+		// Register Ghidra analyzer module
+		auto ghidraAnalyzer = std::make_shared<AnalysisFramework::GhidraAnalyzer>();
+		analysisCore.RegisterModule(ghidraAnalyzer);
+
+		Console.WriteLn("(VMManager) Analysis Framework modules registered successfully");
+	}
+
 	if (EmuConfig.EnableDiscordPresence)
 		InitializeDiscordPresence();
 
@@ -427,6 +457,9 @@ void VMManager::Internal::CPUThreadShutdown()
 	ShutdownDiscordPresence();
 
 	PINEServer::Deinitialize();
+
+	// Shutdown Analysis Framework
+	AnalysisFramework::AnalysisFrameworkCore::GetInstance().Shutdown();
 
 	Achievements::Shutdown(false);
 

@@ -818,6 +818,29 @@ set(pcsx2DebugToolsHeaders
 	DebugTools/DisVUops.h
 	DebugTools/BiosDebugData.h)
 
+# AnalysisFramework sources
+set(pcsx2AnalysisFrameworkSources
+	AnalysisFramework/Core/AnalysisFramework.cpp
+	AnalysisFramework/Core/MemoryInterface.cpp
+	AnalysisFramework/Core/DebugInterface.cpp
+	AnalysisFramework/MCPServer/MCPServer.cpp
+	AnalysisFramework/IDAInterface/IDAInterface.cpp
+	AnalysisFramework/GhidraAnalyzer/GhidraAnalyzer.cpp
+	AnalysisFramework/Common/Utilities.cpp
+)
+
+# AnalysisFramework headers
+set(pcsx2AnalysisFrameworkHeaders
+	AnalysisFramework/Core/AnalysisFramework.h
+	AnalysisFramework/Core/MemoryInterface.h
+	AnalysisFramework/Core/DebugInterface.h
+	AnalysisFramework/MCPServer/MCPServer.h
+	AnalysisFramework/IDAInterface/IDAInterface.h
+	AnalysisFramework/GhidraAnalyzer/GhidraAnalyzer.h
+	AnalysisFramework/CheatEngine/CheatEngine.h
+	AnalysisFramework/Common/Utilities.h
+)
+
 set(pcsx2HostSources
 	Host/AudioStream.cpp
 	Host/CubebAudioStream.cpp
@@ -1093,6 +1116,8 @@ target_sources(PCSX2 PRIVATE
 	${pcsx2RecordingSources}
 	${pcsx2DebugToolsSources}
 	${pcsx2DebugToolsHeaders}
+	${pcsx2AnalysisFrameworkSources}
+	${pcsx2AnalysisFrameworkHeaders}
 	${pcsx2HostSources}
 	${pcsx2HostHeaders}
 	${pcsx2ImGuiSources}
