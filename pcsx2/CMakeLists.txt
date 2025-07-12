@@ -824,6 +824,8 @@ set(pcsx2AnalysisFrameworkSources
 	AnalysisFramework/Core/MemoryInterface.cpp
 	AnalysisFramework/Core/DebugInterface.cpp
 	AnalysisFramework/MCPServer/MCPServer.cpp
+	AnalysisFramework/IDAInterface/IDAInterface.cpp
+	AnalysisFramework/GhidraAnalyzer/GhidraAnalyzer.cpp
 	AnalysisFramework/Common/Utilities.cpp
 )
 
@@ -833,6 +835,9 @@ set(pcsx2AnalysisFrameworkHeaders
 	AnalysisFramework/Core/MemoryInterface.h
 	AnalysisFramework/Core/DebugInterface.h
 	AnalysisFramework/MCPServer/MCPServer.h
+	AnalysisFramework/IDAInterface/IDAInterface.h
+	AnalysisFramework/GhidraAnalyzer/GhidraAnalyzer.h
+	AnalysisFramework/CheatEngine/CheatEngine.h
 	AnalysisFramework/Common/Utilities.h
 )
 

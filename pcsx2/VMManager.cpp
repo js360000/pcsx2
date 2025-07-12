@@ -27,6 +27,8 @@
 #include "PINE.h"
 #include "AnalysisFramework/Core/AnalysisFramework.h"
 #include "AnalysisFramework/MCPServer/MCPServer.h"
+#include "AnalysisFramework/IDAInterface/IDAInterface.h"
+#include "AnalysisFramework/GhidraAnalyzer/GhidraAnalyzer.h"
 #include "Patch.h"
 #include "PerformanceMetrics.h"
 #include "R3000A.h"
@@ -428,6 +430,16 @@ bool VMManager::Internal::CPUThreadInitialize()
 			// Start MCP server integration with PINE
 			mcpServer->StartServer();
 		}
+
+		// Register IDA Pro interface module
+		auto idaInterface = std::make_shared<AnalysisFramework::IDAInterface>();
+		analysisCore.RegisterModule(idaInterface);
+
+		// Register Ghidra analyzer module
+		auto ghidraAnalyzer = std::make_shared<AnalysisFramework::GhidraAnalyzer>();
+		analysisCore.RegisterModule(ghidraAnalyzer);
+
+		Console.WriteLn("(VMManager) Analysis Framework modules registered successfully");
 	}
 
 	if (EmuConfig.EnableDiscordPresence)
