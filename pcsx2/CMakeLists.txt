@@ -92,6 +92,7 @@ set(pcsx2Sources
 	MMI.cpp
 	MTGS.cpp
 	MTVU.cpp
+	OneDriveAPI.cpp
 	Patch.cpp
 	Pcsx2Config.cpp
 	PerformanceMetrics.cpp
@@ -171,6 +172,7 @@ set(pcsx2Headers
 	Mdec.h
 	MTGS.h
 	MTVU.h
+	OneDriveAPI.h
 	Memory.h
 	MemoryTypes.h
 	Patch.h
@@ -221,6 +223,7 @@ set(pcsx2CDVDSources
 	CDVD/CsoFileReader.cpp
 	CDVD/GzippedFileReader.cpp
 	CDVD/ThreadedFileReader.cpp
+	CDVD/OneDriveFileReader.cpp
 	)
 
 # CDVD headers
@@ -236,6 +239,7 @@ set(pcsx2CDVDHeaders
 	CDVD/FlatFileReader.h
 	CDVD/GzippedFileReader.h
 	CDVD/ThreadedFileReader.h
+	CDVD/OneDriveFileReader.h
 	CDVD/IsoFileFormats.h
 	CDVD/IsoHasher.h
 	CDVD/IsoReader.h

@@ -143,6 +143,7 @@ private Q_SLOTS:
 	void onGameListEntryContextMenuRequested(const QPoint& point);
 
 	void onStartFileActionTriggered();
+	void onStartOneDriveActionTriggered();
 	void onStartDiscActionTriggered();
 	void onStartBIOSActionTriggered();
 	void onChangeDiscFromFileActionTriggered();

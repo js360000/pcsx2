@@ -24,6 +24,7 @@
 #include "pcsx2/Achievements.h"
 #include "pcsx2/CDVD/CDVDcommon.h"
 #include "pcsx2/CDVD/CDVDdiscReader.h"
+#include "pcsx2/OneDriveAPI.h"
 #include "pcsx2/GS.h"
 #include "pcsx2/GS/GS.h"
 #include "pcsx2/GSDumpReplayer.h"
@@ -312,6 +313,7 @@ void MainWindow::setupAdditionalUi()
 void MainWindow::connectSignals()
 {
 	connect(m_ui.actionStartFile, &QAction::triggered, this, &MainWindow::onStartFileActionTriggered);
+	connect(m_ui.actionStartOneDrive, &QAction::triggered, this, &MainWindow::onStartOneDriveActionTriggered);
 	connect(m_ui.actionStartDisc, &QAction::triggered, this, &MainWindow::onStartDiscActionTriggered);
 	connect(m_ui.actionStartBios, &QAction::triggered, this, &MainWindow::onStartBIOSActionTriggered);
 	connect(m_ui.actionChangeDiscFromFile, &QAction::triggered, this, &MainWindow::onChangeDiscFromFileActionTriggered);
@@ -1511,6 +1513,71 @@ void MainWindow::onStartFileActionTriggered()
 		return;
 
 	doStartFile(std::nullopt, path);
+}
+
+void MainWindow::onStartOneDriveActionTriggered()
+{
+#ifdef _WIN32
+	QMessageBox::warning(this, tr("OneDrive Streaming"),
+		tr("OneDrive streaming is not supported on Windows. Please use the Linux or macOS version."));
+	return;
+#endif
+
+	bool ok;
+	const QString url = QInputDialog::getText(this, tr("OneDrive URL"),
+		tr("Enter OneDrive share URL or Graph API URL:"), QLineEdit::Normal, QString(), &ok);
+	
+	if (!ok || url.isEmpty())
+		return;
+
+	// Validate OneDrive URL
+	if (!OneDriveAPI::IsOneDriveURL(url.toStdString()))
+	{
+		QMessageBox::warning(this, tr("Invalid URL"),
+			tr("Please enter a valid OneDrive URL. Supported formats:\n"
+			   "• Graph API: https://graph.microsoft.com/v1.0/me/drive/items/ITEM_ID\n"
+			   "• Direct links from OneDrive web interface"));
+		return;
+	}
+
+	// Check if OneDrive is enabled
+	if (!Host::GetBaseBoolSettingValue("OneDrive", "Enabled", false))
+	{
+		const int result = QMessageBox::question(this, tr("OneDrive Disabled"),
+			tr("OneDrive streaming is disabled. Would you like to enable it and configure authentication?"),
+			QMessageBox::Yes | QMessageBox::No);
+		
+		if (result == QMessageBox::Yes)
+		{
+			doSettings("OneDrive");
+			return;
+		}
+		else
+		{
+			return;
+		}
+	}
+
+	// Check authentication
+	const std::string clientId = Host::GetBaseStringSettingValue("OneDrive", "ClientID", "");
+	if (clientId.empty())
+	{
+		const int result = QMessageBox::question(this, tr("Authentication Required"),
+			tr("OneDrive authentication is not configured. Would you like to configure it now?"),
+			QMessageBox::Yes | QMessageBox::No);
+		
+		if (result == QMessageBox::Yes)
+		{
+			doSettings("OneDrive");
+			return;
+		}
+		else
+		{
+			return;
+		}
+	}
+
+	doStartFile(std::nullopt, url);
 }
 
 void MainWindow::onStartDiscActionTriggered()

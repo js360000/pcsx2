@@ -31,6 +31,7 @@ class AudioSettingsWidget;
 class MemoryCardSettingsWidget;
 class FolderSettingsWidget;
 class DEV9SettingsWidget;
+class OneDriveSettingsWidget;
 class AchievementSettingsWidget;
 class AdvancedSettingsWidget;
 class DebugSettingsWidget;
@@ -65,6 +66,7 @@ public:
 	__fi MemoryCardSettingsWidget* getMemoryCardSettingsWidget() const { return m_memory_card_settings; }
 	__fi FolderSettingsWidget* getFolderSettingsWidget() const { return m_folder_settings; }
 	__fi DEV9SettingsWidget* getDEV9SettingsWidget() const { return m_dev9_settings; }
+	__fi OneDriveSettingsWidget* getOneDriveSettingsWidget() const { return m_onedrive_settings; }
 	__fi AchievementSettingsWidget* getAchievementSettingsWidget() const { return m_achievement_settings; }
 	__fi AdvancedSettingsWidget* getAdvancedSettingsWidget() const { return m_advanced_settings; }
 
@@ -138,6 +140,7 @@ private:
 	MemoryCardSettingsWidget* m_memory_card_settings = nullptr;
 	FolderSettingsWidget* m_folder_settings = nullptr;
 	DEV9SettingsWidget* m_dev9_settings = nullptr;
+	OneDriveSettingsWidget* m_onedrive_settings = nullptr;
 	AchievementSettingsWidget* m_achievement_settings = nullptr;
 	AdvancedSettingsWidget* m_advanced_settings = nullptr;
 	DebugSettingsWidget* m_debug_settings = nullptr;
